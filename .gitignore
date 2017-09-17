@@ -1,0 +1,15 @@
+pred.txt
+multi-bleu.perl
+*.pt
+*.pyc
+#.*
+.idea
+*.sublime-*
+.DS_Store
+data/
+build/
+venv/
+__pycache__/
+*.lang
+*.log
+.cache/
