@@ -69,6 +69,8 @@ train_data = batchify(corpus.train, args.batch_size)
 val_data = batchify(corpus.valid, eval_batch_size)
 test_data = batchify(corpus.test, eval_batch_size)
 
+best_filename = None
+
 ###############################################################################
 # Build the model
 ###############################################################################
@@ -213,7 +215,8 @@ try:
     print('-' * 89)
     # Save the model if the validation loss is the best we've seen so far.
     if not best_val_loss or val_loss < best_val_loss:
-      with open(args.save + '-' + str(time.time()) + '-' + str(val_loss), 'wb') as f:
+      best_filename = args.save + '-' + str(time.ctime()) + '-' + str(val_loss) + '.t7'
+      with open(best_filename, 'wb') as f:
         torch.save(model, f)
       best_val_loss = val_loss
     else:
@@ -231,7 +234,7 @@ except KeyboardInterrupt:
   print('Exiting from training early')
 
 # Load the best saved model.
-with open(args.save, 'rb') as f:
+with open(best_filename, 'rb') as f:
   model = torch.load(f)
 
 # Run on test data.
