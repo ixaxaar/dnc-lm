@@ -4,6 +4,7 @@ import math
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
+import time
 
 import data
 import model
@@ -202,8 +203,8 @@ ghx = None
 try:
   for epoch in range(1, args.epochs + 1):
     epoch_start_time = time.time()
-    ghx = train(ghx)
-    val_loss = evaluate(val_data, ghx)
+    ghx = train(ghx, None)
+    val_loss = evaluate(val_data, None)
     print('-' * 89)
     print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
           'valid ppl {:8.2f} '.format(
@@ -212,7 +213,7 @@ try:
     print('-' * 89)
     # Save the model if the validation loss is the best we've seen so far.
     if not best_val_loss or val_loss < best_val_loss:
-      with open(args.save, 'wb') as f:
+      with open(args.save + '-' + str(time.time()) + '-' + str(val_loss), 'wb') as f:
         torch.save(model, f)
       best_val_loss = val_loss
     else:
