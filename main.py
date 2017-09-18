@@ -33,6 +33,8 @@ parser.add_argument('--cell_size', type=int, default=10, help='Cell sizes of DNC
 parser.add_argument('--reset_experience', type=str, default='0',
                     help='Whether to reset the DNCs memory after each forward pass')
 
+parser.add_argument('--optim', type=str, default='sgd', help='Optimizer to use, supports sgd, adam, rmsprop')
+
 args = parser.parse_args()
 
 # Set the random seed manually for reproducibility.
@@ -88,7 +90,12 @@ if args.cuda != -1:
   model.cuda(args.cuda)
 
 criterion = nn.CrossEntropyLoss()
-optim = torch.optim.Adam(model.parameters(), lr=args.lr)
+if args.optim == 'sgd':
+  optim = torch.optim.SGD(model.parameters(), lr=args.lr)
+elif args.optim == 'adam':
+  optim = torch.optim.Adam(model.parameters(), lr=args.lr)
+elif args.optim == 'rmsprop':
+  optim = torch.optim.RMSprop(model.parameters(), lr=args.lr, eps=1e-10)
 
 ###############################################################################
 # Training code
@@ -210,8 +217,14 @@ try:
       best_val_loss = val_loss
     else:
       # Anneal the learning rate if no improvement has been seen in the validation dataset.
-      lr /= 5
-      optim = torch.optim.Adam(model.parameters(), lr=lr)
+      lr /= 2.5
+      if args.optim == 'sgd':
+        optim = torch.optim.SGD(model.parameters(), lr=lr)
+      elif args.optim == 'adam':
+        optim = torch.optim.SGD(model.parameters(), lr=lr)
+      elif args.optim == 'rmsprop':
+        optim = torch.optim.RMSprop(model.parameters(), lr=lr, eps=1e-10)
+
 except KeyboardInterrupt:
   print('-' * 89)
   print('Exiting from training early')
