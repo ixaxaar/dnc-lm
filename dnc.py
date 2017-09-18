@@ -179,15 +179,15 @@ class DNC(nn.Module):
     # outs = [input[:, x, :] for x in range(max_length)]
     outs = [T.cat([input[:, x, :], last_read], 1) for x in range(max_length)]
 
-    chx = [x[0] for x in controller_hidden] if self.mode.lower() == 'lstm' else controller_hidden[0]
+    # chx = [x[0] for x in controller_hidden] if self.mode.lower() == 'lstm' else controller_hidden[0]
     for layer in range(self.num_layers):
       # this layer's hidden states
-      # chx = [x[layer] for x in controller_hidden] if self.mode.lower() == 'lstm' else controller_hidden[layer]
+      chx = [x[layer] for x in controller_hidden] if self.mode.lower() == 'lstm' else controller_hidden[layer]
       # pass through controller
-      outs, _, (chx, mem_hidden[0]) = self._layer_forward(
+      outs, _, (chx, mem_hidden[layer]) = self._layer_forward(
           outs,
           layer,
-          (chx, mem_hidden[0])
+          (chx, mem_hidden[layer])
       )
       chxs.append(chx)
 
