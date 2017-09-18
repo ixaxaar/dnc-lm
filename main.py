@@ -137,7 +137,7 @@ def evaluate(data_source, h=None):
   for i in range(0, data_source.size(0) - 1, args.bptt):
     data, targets = get_batch(data_source, i, evaluation=True)
     if args.model.lower() == 'dnc':
-      output, hidden = model(data, hidden, reset_experience=True)
+      output, hidden = model(data, hidden, reset_experience=False)
     else:
       output, hidden = model(data, hidden)
     output_flat = output.view(-1, ntokens)
@@ -167,7 +167,7 @@ def train(h=None):
     model.zero_grad()
     optim.zero_grad()
     if args.model.lower() == 'dnc':
-      output, hidden = model(data, hidden, reset_experience=True)
+      output, hidden = model(data, hidden, reset_experience=False)
     else:
       output, hidden = model(data, hidden)
     loss = criterion(output.view(-1, ntokens), targets)
@@ -203,8 +203,8 @@ ghx = None
 try:
   for epoch in range(1, args.epochs + 1):
     epoch_start_time = time.time()
-    ghx = train(ghx, None)
-    val_loss = evaluate(val_data, None)
+    ghx = train(ghx)
+    val_loss = evaluate(val_data, ghx)
     print('-' * 89)
     print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
           'valid ppl {:8.2f} '.format(

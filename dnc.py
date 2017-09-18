@@ -184,10 +184,10 @@ class DNC(nn.Module):
       # this layer's hidden states
       chx = [x[layer] for x in controller_hidden] if self.mode.lower() == 'lstm' else controller_hidden[layer]
       # pass through controller
-      outs, _, (chx, mem_hidden[layer]) = self._layer_forward(
+      outs, _, (chx, mem_hidden[0]) = self._layer_forward(
           outs,
           layer,
-          (chx, mem_hidden[layer])
+          (chx, mem_hidden[0])
       )
       chxs.append(chx)
 
