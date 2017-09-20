@@ -40,13 +40,13 @@ class Memory(nn.Module):
       self.interface_size = (w * r) + (3 * w) + (5 * r) + 3
       self.interface_weights = nn.Linear(self.input_size, self.interface_size)
 
+    self.I = cuda(1 - T.eye(m).unsqueeze(0), gpu_id=self.gpu_id)  # (1 * n * n)
+
   def reset(self, batch_size=1, hidden=None, erase=True):
     m = self.mem_size
     w = self.cell_size
     r = self.read_heads
     b = batch_size
-
-    self.I = cuda(1 - T.eye(m).unsqueeze(0), gpu_id=self.gpu_id)  # (1 * n * n)
 
     if hidden is None:
       return {

@@ -30,7 +30,8 @@ class DNC(nn.Module):
       nonlinearity='tanh',
       gpu_id=-1,
       clip=20,
-      independent_linears=True
+      independent_linears=True,
+      share_memory=True
   ):
     super(DNC, self).__init__()
     # todo: separate weights and RNNs for the interface and output vectors
@@ -49,6 +50,7 @@ class DNC(nn.Module):
     self.gpu_id = gpu_id
     self.clip = clip
     self.independent_linears = independent_linears
+    self.share_memory = share_memory
 
     self.w = self.cell_size
     self.r = self.read_heads
@@ -119,9 +121,15 @@ class DNC(nn.Module):
 
     # memory states
     if mhx is None:
-      mhx = [m.reset(batch_size, erase=reset_experience) for m in self.memories]
+      if self.share_memory:
+        mhx = self.memories[0].reset(batch_size, erase=reset_experience)
+      else:
+        mhx = [m.reset(batch_size, erase=reset_experience) for m in self.memories]
     else:
-      mhx = [m.reset(batch_size, h, erase=reset_experience) for m, h in zip(self.memories, mhx)]
+      if self.share_memory:
+        mhx = self.memories[0].reset(batch_size, mhx, erase=reset_experience)
+      else:
+        mhx = [m.reset(batch_size, h, erase=reset_experience) for m, h in zip(self.memories, mhx)]
 
     return chx, mhx, last_read
 
@@ -183,12 +191,20 @@ class DNC(nn.Module):
     for layer in range(self.num_layers):
       # this layer's hidden states
       chx = [x[layer] for x in controller_hidden] if self.mode.lower() == 'lstm' else controller_hidden[layer]
+
+      m = mem_hidden if self.share_memory else mem_hidden[layer]
       # pass through controller
-      outs, _, (chx, mem_hidden[0]) = self._layer_forward(
+      outs, _, (chx, m) = self._layer_forward(
           outs,
           layer,
-          (chx, mem_hidden[0])
+          (chx, m)
       )
+
+      # store the memory back (per layer or shared)
+      if self.share_memory:
+        mem_hidden = m
+      else:
+        mem_hidden[layer] = m
       chxs.append(chx)
 
       if layer == self.num_layers - 1:

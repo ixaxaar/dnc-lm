@@ -93,3 +93,64 @@ python main.py --cuda 0 --emsize 650 --nhid 650 --dropout 0.5 --epochs 40 --mode
 python main.py --cuda 0 --emsize 650 --nhid 650 --dropout 0.5 --epochs 40 --model DNC --nr_cells 32 --read_heads 4 --cell_size 64 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam
 python main.py --cuda 0 --emsize 650 --nhid 650 --dropout 0.5 --epochs 40 --model DNC --nr_cells 32 --read_heads 4 --cell_size 64 --batch_size 100 --log-interval 15 --lr 0.0001 --optim rmsprop
 
+
+python main.py --cuda 1 --emsize 512 --nhid 512 --dropout 0.5 --epochs 40 --model DNC --nr_cells 32 --read_heads 4 --cell_size 256 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam
+python main.py --cuda 1 --emsize 512 --nhid 512 --dropout 0.5 --epochs 40 --model DNC --nr_cells 32 --read_heads 4 --cell_size 512 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam
+
+
+
+python main.py --cuda 0 --emsize 650 --nhid 650 --dropout 0.5 --epochs 40 --model DNC --nr_cells 32 --read_heads 4 --cell_size 64 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam --data ./data/billion
+
+
+python main.py --cuda 0 --emsize 512 --nhid 512 --dropout 0.5 --epochs 40 --model DNC --nr_cells 32 --read_heads 4 --cell_size 64 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam
+python main.py --cuda 0 --emsize 512 --nhid 512 --dropout 0.5 --epochs 40 --model DNC --nr_cells 32 --read_heads 4 --cell_size 256 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam
+python main.py --cuda 0 --emsize 512 --nhid 512 --dropout 0.5 --epochs 40 --model DNC --nr_cells 32 --read_heads 4 --cell_size 512 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam
+python main.py --cuda 0 --emsize 512 --nhid 512 --dropout 0.5 --epochs 40 --model DNC --nr_cells 16 --read_heads 4 --cell_size 1024 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam
+python main.py --cuda 0 --emsize 512 --nhid 512 --dropout 0.5 --epochs 40 --model DNC --nr_cells 8 --read_heads 4 --cell_size 2048 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam
+
+
+python main.py --cuda 0 --emsize 512 --nhid 512 --dropout 0.5 --epochs 40 --model DNC --nr_cells 64 --read_heads 4 --cell_size 64 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam
+
+python main.py --cuda 1 --emsize 512 --nhid 512 --dropout 0.5 --epochs 40 --model DNC --nr_cells 256 --read_heads 4 --cell_size 32 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam
+
+
+# TODO:
+
+python main.py --cuda 0 --emsize 512 --nhid 512 --dropout 0.5 --epochs 30 --model DNC --nr_cells 2 --read_heads 4 --cell_size 512 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam
+python main.py --cuda 0 --emsize 512 --nhid 512 --dropout 0.5 --epochs 30 --model DNC --nr_cells 4 --read_heads 4 --cell_size 2048 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam
+# python main.py --cuda 0 --emsize 512 --nhid 512 --dropout 0.5 --epochs 30 --model DNC --nr_cells 2 --read_heads 4 --cell_size 2048 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam
+
+
+# experiment for determining corr of read heads and number of cells
+for (( i = 0; i < 7; i++ )); do
+  python main.py --cuda 0 --emsize 512 --nhid 512 --dropout 0.5 --epochs 30 --model DNC --nr_cells $((i**2)) --read_heads 8 --cell_size 256 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam >> read_weights_and_number_of_cells_$((i**2))_8.log
+  python main.py --cuda 0 --emsize 512 --nhid 512 --dropout 0.5 --epochs 30 --model DNC --nr_cells $((i**2)) --read_heads 4 --cell_size 256 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam >> read_weights_and_number_of_cells_$((i**2))_4.log
+  python main.py --cuda 0 --emsize 512 --nhid 512 --dropout 0.5 --epochs 30 --model DNC --nr_cells $((i**2)) --read_heads 2 --cell_size 256 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam >> read_weights_and_number_of_cells_$((i**2))_2.log
+done
+
+
+# experiment for determining corr of controller size and nr layers
+for (( i = 2; i < 9; i++ )); do
+  python main.py --cuda 1 --emsize 256 --nhid 256 --nlayers $i --dropout 0.5 --epochs 30 --model DNC --nr_cells 32 --read_heads 4 --cell_size 256 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam >> controller_size_and_nr_layers_${i}_256.log
+  python main.py --cuda 1 --emsize 64 --nhid 64 --nlayers $i --dropout 0.5 --epochs 30 --model DNC --nr_cells 32 --read_heads 4 --cell_size 256 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam >> controller_size_and_nr_layers_${i}_64.log
+  python main.py --cuda 1 --emsize 128 --nhid 128 --nlayers $i --dropout 0.5 --epochs 30 --model DNC --nr_cells 32 --read_heads 4 --cell_size 256 --batch_size 100 --log-interval 15 --lr 0.001 --optim adam >> controller_size_and_nr_layers_${i}_128.log
+done
+
+
+
+
+python main.py\
+  --cuda 0\
+  --emsize 650\
+  --nhid 650\
+  --dropout 0.5\
+  --epochs 40\
+  --model DNC\
+  --nr_cells 32\
+  --read_heads 4\
+  --cell_size 64\
+  --batch_size 100\
+  --log-interval 15\
+  --lr 0.001\
+  --optim adam\
+  --data ./data/billion

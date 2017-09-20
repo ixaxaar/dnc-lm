@@ -119,7 +119,10 @@ def repackage_hidden_dnc(h):
 
   (chx, mhxs, _) = h
   chx = repackage_hidden(chx)
-  mhxs = [dict([(k, repackage_hidden(v)) for k, v in mhx.items()]) for mhx in mhxs]
+  if type(mhxs) is list:
+    mhxs = [dict([(k, repackage_hidden(v)) for k, v in mhx.items()]) for mhx in mhxs]
+  else:
+    mhxs = dict([(k, repackage_hidden(v)) for k, v in mhxs.items()])
   return (chx, mhxs, None)
 
 
@@ -225,7 +228,7 @@ try:
       if args.optim == 'sgd':
         optim = torch.optim.SGD(model.parameters(), lr=lr)
       elif args.optim == 'adam':
-        optim = torch.optim.SGD(model.parameters(), lr=lr)
+        optim = torch.optim.Adam(model.parameters(), lr=lr)
       elif args.optim == 'rmsprop':
         optim = torch.optim.RMSprop(model.parameters(), lr=lr, eps=1e-10)
 
